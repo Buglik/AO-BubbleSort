@@ -47,9 +47,38 @@ def gpu_bubble_sort(array):
             }
         }
     }
+
+    __global__ void bubbleSortOdd(float *inputArray, int size) {
+        
+        int i = blockIdx.x * blockDim.x + threadIdx.x;
+        if(i % 2 == 0 && i < size-1){
+            if(inputArray[i+1] < inputArray[i]){
+                // switch in the x array
+                int temp = inputArray[i];
+                inputArray[i] = inputArray[i+1];
+                inputArray[i+1] = temp;
+            }
+        }
+    }
+
+    __global__ void bubbleSortEven(float *inputArray, int size) {
+        
+        int i = blockIdx.x * blockDim.x + threadIdx.x;
+        if(i % 2 != 0 && i < size-1){
+            if(inputArray[i+1] < inputArray[i]){
+                // switch in the x array
+                int temp = inputArray[i];
+                inputArray[i] = inputArray[i+1];
+                inputArray[i+1] = temp;
+            }
+        }
+    }
     """)
-    func = mod.get_function('bubbleSort')
-    func(gpu_array, numpy.int32(float_arr.size), block=block, grid=grid)
+    func = mod.get_function('bubbleSortOdd')
+    func2 = mod.get_function('bubbleSortEven')
+    for _ in range(float_arr.size):
+        func(gpu_array, numpy.int32(float_arr.size), block=block, grid=grid)
+        func2(gpu_array, numpy.int32(float_arr.size), block=block, grid=grid)
 
     sorted_array = numpy.empty_like(float_arr)
     cuda.memcpy_dtoh(sorted_array, gpu_array)
@@ -88,8 +117,17 @@ def run_test(test_func, data_func, iterations=5, attempts=10):
 
 def main():
     # export_to_csv(run_test(cpu_bubble_sort, lambda x: 100 * x, 20))
-    array = [5, 3 , 1, 2, 0, 3241324, 2313,12,534,23,4,237,3214,34,53,423,41,3,143,124,32,6,4,2314,123,51,412,35,16,2314,12356,123,4123,51,6123,4123,4,132,55,5]
-    print(gpu_bubble_sort(array))
+    run_test(cpu_bubble_sort, lambda x: 100*x**2, 100, 10)
+    # arr = generate_data(10000)
+    # sorted_gpu = gpu_bubble_sort(arr)
+    # sorted_cpu = numpy.array(cpu_bubble_sort(arr))
+    # while(numpy.array_equal(sorted_gpu, sorted_cpu)):
+    #     arr = generate_data(10000)
+    #     sorted_gpu = gpu_bubble_sort(arr)
+    #     sorted_cpu = numpy.array(cpu_bubble_sort(arr))
+    #     print('jebac policje')
+    # print(sorted_gpu)
+    # print(sorted_cpu)
 
 
 if __name__ == '__main__':
