@@ -5,7 +5,6 @@ import logging
 
 
 class Timer:
-
     def __init__(self):
         self._start_time = 0
         self._stop_time = 0
@@ -25,7 +24,8 @@ def init_logger(name):
     logger.setLevel(logging.INFO)
     ch = logging.StreamHandler()
     ch.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s')
     ch.setFormatter(formatter)
     logger.addHandler(ch)
 
@@ -44,15 +44,7 @@ def generate_data(length, lower_range=0, upper_range=10000):
 def export_to_csv(dict_array, name='result.csv'):
     """Generating csv file"""
 
-    with open('result.csv', newline='', mode='w') as csvfile:
+    with open(name, newline='', mode='w') as csvfile:
         writer = csv.DictWriter(csvfile, fieldnames=dict_array[0].keys())
         writer.writeheader()
         writer.writerows(dict_array)
-
-
-def main():
-    print(generate_data(20))
-
-
-if __name__ == '__main__':
-    main()
